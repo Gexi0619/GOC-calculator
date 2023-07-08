@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lens Power Calculator</title>
+  <style>
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+    input {
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+    h1 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lens Power Calculator</h1>
+  <div class="container">
+    <label for="select">Please select the item to be calculated:</label>
+    <select id="select" onchange="calculate()">
+      <option value="p">Prescription</option>
+      <option value="c">Contact</option>
+      <option value="s">Spectacle</option>
+      <option value="o">Overcorrected</option>
+    </select>
+    <br>
+    <br>
+    <label for="input_p">Prescription:</label>
+    <input id="input_p" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <label for="input_o">Over/Undercorrected:</label>
+    <input id="input_o" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <label for="input_c">Contact:</label>
+    <input id="input_c" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <label for="input_s">Spectacle:</label>
+    <input id="input_s" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <label for="input_d">BVD (mm):</label>
+    <input id="input_d" type="text" placeholder="Please enter the number" oninput="calculate()" value="12">
+  </div>
+
+  <script>
+    function calculate() {
+      var select = document.getElementById('select');
+      var input_p = document.getElementById('input_p');
+      var input_o = document.getElementById('input_o');
+      var input_c = document.getElementById('input_c');
+      var input_s = document.getElementById('input_s');
+      var input_d = document.getElementById('input_d');
+      
+      // 获取选择的需要计算的数字
+      var selected = select.value;
+      
+      // 启用相应的输入框
+      if (selected === 'p') {
+        input_p.disabled = true;
+        input_o.disabled = false;
+        input_c.disabled = false;
+        input_s.disabled = false;
+      } else if (selected === 'o') {
+        input_p.disabled = false;
+        input_o.disabled = true;
+        input_c.disabled = false;
+        input_s.disabled = false;
+      } else if (selected === 'c') {
+        input_p.disabled = false;
+        input_o.disabled = false;
+        input_c.disabled = true;
+        input_s.disabled = false;
+      } else if (selected === 's') {
+        input_p.disabled = false;
+        input_o.disabled = false;
+        input_c.disabled = false;
+        input_s.disabled = true;
+      }
+      
+      // 获取输入的值
+      var p = input_p.value.trim() !== '' ? parseFloat(input_p.value) : 0;
+      var o = input_o.value.trim() !== '' ? parseFloat(input_o.value) : 0;
+      var c = input_c.value.trim() !== '' ? parseFloat(input_c.value) : 0;
+      var s = input_s.value.trim() !== '' ? parseFloat(input_s.value) : 0;
+      var d = input_d.value.trim() !== '' ? parseFloat(input_d.value) : 12;
+      
+      // 根据选择的数字计算
+      var result;
+      if (selected === 'p') {
+        result = (c / (1 + (d / 1000) * c) + s + o).toFixed(2);
+        input_p.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+      } else if (selected === 'o') {
+        result = (-c / (1 + (d / 1000) * c) - s + p).toFixed(2);
+        input_o.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+      } else if (selected === 'c') {
+        result = ((p + o - s) / (1 - (d / 1000) * (p + o - s))).toFixed(2);
+        input_c.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+      } else if (selected === 's') {
+        result = (-c / (1 + (d / 1000) * c) - o + p).toFixed(2);
+        input_s.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+      }
+    }
+  </script>
+</body>
+</html>
+
