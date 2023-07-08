@@ -17,28 +17,56 @@
     h1 {
       text-align: center;
     }
+    .hidden {
+      display: none;
+    }
+    .radio-group {
+      display: flex;
+    }
+    .radio-group label {
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>GOC Calculator</h1>
   <div class="container">
-    <label for="select">Please select the item to be calculated:</label>
+    <label for="select">Select the item to be calculated:</label>
     <select id="select" onchange="calculate()">
       <option value="c" selected>Contact</option>
       <option value="s">Spectacle</option>
       <option value="o">Overcorrected</option>
       <option value="p">Prescription</option>
     </select>
+    
+    <br>
+    
+    <div class="radio-group">
+      <label for="astigmatism">Astigmatism:</label>
+      <input type="radio" id="without" name="astigmatism" value="without" onchange="toggleAstigmatismInputs(); calculate();">
+      <label for="without">Without</label>
+      <input type="radio" id="merge" name="astigmatism" value="merge" onchange="toggleAstigmatismInputs(); calculate();" checked>
+      <label for="merge">Merge</label>
+      <input type="radio" id="separate" name="astigmatism" value="separate" onchange="toggleAstigmatismInputs(); calculate();">
+      <label for="separate">Separate</label>
+    </div>
+    
     <br>
     <br>
+    
     <label for="input_p">Prescription:</label>
-    <input id="input_p" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <input id="input_p" type="text" placeholder="Sphere" oninput="calculate()">
+    <input id="input_cp" type="text" placeholder="Cylinder" oninput="calculate()" class="hidden">
+    <input id="input_e" type="text" placeholder="Spherical Equivalent" oninput="calculate()" class="hidden">
     <label for="input_c">Contact:</label>
-    <input id="input_c" type="text" placeholder="Please enter the number" oninput="calculate()" >
+    <input id="input_c" type="text" placeholder="Sphere" oninput="calculate()">
+    <input id="input_cc" type="text" placeholder="Cylinder" oninput="calculate()" class="hidden">
     <label for="input_s">Spectacle:</label>
-    <input id="input_s" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <input id="input_s" type="text" placeholder="Sphere" oninput="calculate()" disabled>
+    <input id="input_cs" type="text" placeholder="Cylinder" oninput="calculate()" disabled>
     <label for="input_o">Over(-)/Under(+)Corrected:</label>
-    <input id="input_o" type="text" placeholder="Please enter the number" oninput="calculate()" disabled>
+    <input id="input_o" type="text" placeholder="Sphere" oninput="calculate()" disabled  value="0">
+    <input id="input_co" type="text" placeholder="Cylinder" oninput="calculate()" disabled  value="0">
     <label for="input_d">BVD (mm):</label>
     <input id="input_d" type="text" placeholder="Please enter the number" oninput="calculate()" value="12">
   </div>
@@ -49,7 +77,12 @@
       var input_o = document.getElementById('input_o');
       var input_c = document.getElementById('input_c');
       var input_s = document.getElementById('input_s');
+      var input_cp = document.getElementById('input_cp');
+      var input_co = document.getElementById('input_co');
+      var input_cc = document.getElementById('input_cc');
+      var input_cs = document.getElementById('input_cs');
       var input_d = document.getElementById('input_d');
+      var input_e = document.getElementById('input_e');
       
       // 获取选择的需要计算的数字
       var selected = select.value;
@@ -60,21 +93,41 @@
         input_o.disabled = false;
         input_c.disabled = false;
         input_s.disabled = false;
+        input_cp.disabled = true;
+        input_co.disabled = false;
+        input_cc.disabled = false;
+        input_cs.disabled = false;
+        input_e.disabled = true;
       } else if (selected === 'o') {
         input_p.disabled = false;
         input_o.disabled = true;
         input_c.disabled = false;
         input_s.disabled = false;
+        input_cp.disabled = false;
+        input_co.disabled = true;
+        input_cc.disabled = false;
+        input_cs.disabled = false;
+        input_e.disabled = true;
       } else if (selected === 'c') {
         input_p.disabled = false;
         input_o.disabled = false;
         input_c.disabled = true;
         input_s.disabled = false;
+        input_cp.disabled = false;
+        input_co.disabled = false;
+        input_cc.disabled = true;
+        input_cs.disabled = false;
+        input_e.disabled = true;
       } else if (selected === 's') {
         input_p.disabled = false;
         input_o.disabled = false;
         input_c.disabled = false;
         input_s.disabled = true;
+        input_cp.disabled = false;
+        input_co.disabled = false;
+        input_cc.disabled = false;
+        input_cs.disabled = true;
+        input_e.disabled = true;
       }
       
       // 获取输入的值
@@ -82,27 +135,94 @@
       var o = input_o.value.trim() !== '' ? parseFloat(input_o.value) : 0;
       var c = input_c.value.trim() !== '' ? parseFloat(input_c.value) : 0;
       var s = input_s.value.trim() !== '' ? parseFloat(input_s.value) : 0;
+      var cp = input_p.value.trim() !== '' ? parseFloat(input_cp.value) : 0;
+      var co = input_o.value.trim() !== '' ? parseFloat(input_co.value) : 0;
+      var cc = input_c.value.trim() !== '' ? parseFloat(input_cc.value) : 0;
+      var cs = input_s.value.trim() !== '' ? parseFloat(input_cs.value) : 0;
       var d = input_d.value.trim() !== '' ? parseFloat(input_d.value) : 12;
-      
+      var e = input_e.value.trim() !== '' ? parseFloat(input_e.value) : 0;
+
       // 根据选择的数字计算
       var result;
       if (selected === 'p') {
         result = (c / (1 + (d / 1000) * c) + s - o).toFixed(2);
         input_p.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        result = (cc / (1 + (d / 1000) * cc) + cs - co).toFixed(2);
+        input_cp.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        result = (p + cp / 2).toFixed(2);
+        input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
       } else if (selected === 'o') {
-        result = (c / (1 + (d / 1000) * c) + s - p).toFixed(2);
-        input_o.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        result = (p + cp / 2).toFixed(2);
+        input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        if (document.getElementById('merge').checked) {
+          result = (c / (1 + (d / 1000) * c) + s - e).toFixed(2);
+        } else {
+          result = (c / (1 + (d / 1000) * c) + s - p).toFixed(2);
+          input_o.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+          result = (cc / (1 + (d / 1000) * cc) + cs - cp).toFixed(2);
+          input_co.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        }
       } else if (selected === 'c') {
-        result = ((p + o - s) / (1 - (d / 1000) * (p + o - s))).toFixed(2);
-        input_c.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        result = (p + cp / 2).toFixed(2);
+        input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        if (document.getElementById('merge').checked) {
+          result = ((e + o - s) / (1 - (d / 1000) * (e + o - s))).toFixed(2);
+          input_c.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        } else {
+          result = ((p + o - s) / (1 - (d / 1000) * (p + o - s))).toFixed(2);
+          input_c.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+          result = ((cp + co - cs) / (1 - (d / 1000) * (cp + co - cs))).toFixed(2);
+          input_cc.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        }
       } else if (selected === 's') {
-        result = (-c / (1 + (d / 1000) * c) + o + p).toFixed(2);
-        input_s.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        result = (p + cp / 2).toFixed(2);
+        input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        if (document.getElementById('merge').checked) {
+          result = (-c / (1 + (d / 1000) * c) + o + e).toFixed(2);
+          input_s.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        } else {
+          result = (-c / (1 + (d / 1000) * c) + o + p).toFixed(2);
+          input_s.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+          result = (-cc / (1 + (d / 1000) * cc) + co + cp).toFixed(2);
+          input_cs.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
+        }
+      }
+    }
+
+    function toggleAstigmatismInputs() {
+      var without = document.getElementById('without');
+      var merge = document.getElementById('merge');
+      var separate = document.getElementById('separate');
+      var input_cp = document.getElementById('input_cp');
+      var input_cc = document.getElementById('input_cc');
+      var input_cs = document.getElementById('input_cs');
+      var input_co = document.getElementById('input_co');
+      var input_e = document.getElementById('input_e');
+
+      if (without.checked) {
+        input_e.classList.add('hidden');
+        input_cp.classList.add('hidden');
+        input_cc.classList.add('hidden');
+        input_cs.classList.add('hidden');
+        input_co.classList.add('hidden');
+        input_cp.value = 0;
+      } else if (merge.checked) {
+        input_e.classList.remove('hidden');
+        input_cp.classList.remove('hidden');
+        input_cc.classList.add('hidden');
+        input_cs.classList.add('hidden');
+        input_co.classList.add('hidden');
+      } else if (separate.checked) {
+        input_e.classList.add('hidden');
+        input_cp.classList.remove('hidden');
+        input_cc.classList.remove('hidden');
+        input_cs.classList.remove('hidden');
+        input_co.classList.remove('hidden');
       }
     }
     
-    // 初始计算
-    calculate();
+    // 页面加载时调用函数设置初始状态
+    window.onload = toggleAstigmatismInputs;
   </script>
 </body>
 </html>
