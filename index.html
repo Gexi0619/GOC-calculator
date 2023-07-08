@@ -3,6 +3,9 @@
 <head>
   <title>GOC Calculator</title>
   <style>
+    body {
+      zoom: 150%;
+    }
     .container {
       display: flex;
       flex-direction: column;
@@ -26,7 +29,11 @@
     .radio-group label {
       margin-right: 10px;
     }
+    hr {
+      margin-top: 100px;
   </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
   <h1>GOC Calculator</h1>
@@ -42,7 +49,7 @@
     <br>
     
     <div class="radio-group">
-      <label for="astigmatism">Astigmatism:</label>
+      <label for="astigmatism">How to deal with astigmatism:</label>
       <input type="radio" id="without" name="astigmatism" value="without" onchange="toggleAstigmatismInputs(); calculate();">
       <label for="without">Without</label>
       <input type="radio" id="merge" name="astigmatism" value="merge" onchange="toggleAstigmatismInputs(); calculate();" checked>
@@ -70,6 +77,20 @@
     <label for="input_d">BVD (mm):</label>
     <input id="input_d" type="text" placeholder="Please enter the number" oninput="calculate()" value="12">
   </div>
+
+  <hr>
+  <div id="math-formulas">
+    <p>The formula I used:</p>
+    <p>
+      \(F_{c} = \frac{{F}}{{1 - d \cdot F}}\)
+   ,where Fc is the power corrected for vertex distance, F is the original lens power, and d is the change in vertex distance in meters.
+    </p>
+    <p>
+      \(Spherical\ Equivalent = \frac{Cylinder}{2} + Sphere\)
+    </p>
+  </div>
+    <p>© greycat</p>
+
   <script>
     function calculate() {
       var select = document.getElementById('select');
@@ -84,10 +105,10 @@
       var input_d = document.getElementById('input_d');
       var input_e = document.getElementById('input_e');
       
-      // 获取选择的需要计算的数字
+      // Get the selected number that needs to be calculated
       var selected = select.value;
       
-      // 启用相应的输入框
+      // Enable the corresponding input box
       if (selected === 'p') {
         input_p.disabled = true;
         input_o.disabled = false;
@@ -130,7 +151,7 @@
         input_e.disabled = true;
       }
       
-      // 获取输入的值
+      // Get the value entered
       var p = input_p.value.trim() !== '' ? parseFloat(input_p.value) : 0;
       var o = input_o.value.trim() !== '' ? parseFloat(input_o.value) : 0;
       var c = input_c.value.trim() !== '' ? parseFloat(input_c.value) : 0;
@@ -142,7 +163,7 @@
       var d = input_d.value.trim() !== '' ? parseFloat(input_d.value) : 12;
       var e = input_e.value.trim() !== '' ? parseFloat(input_e.value) : 0;
 
-      // 根据选择的数字计算
+      // Calculated from selected numbers
       var result;
       if (selected === 'p') {
         result = (c / (1 + (d / 1000) * c) + s - o).toFixed(2);
@@ -221,7 +242,7 @@
       }
     }
     
-    // 页面加载时调用函数设置初始状态
+    // Call the function to set the initial state when the page loads
     window.onload = toggleAstigmatismInputs;
   </script>
 </body>
