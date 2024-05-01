@@ -50,9 +50,9 @@
     
     <div class="radio-group">
       <label for="astigmatism">How to deal with astigmatism:</label>
-      <input type="radio" id="without" name="astigmatism" value="without" onchange="toggleAstigmatismInputs(); calculate();" checked>
+      <input type="radio" id="without" name="astigmatism" value="without" onchange="toggleAstigmatismInputs(); calculate();">
       <label for="without">Without</label>
-      <input type="radio" id="merge" name="astigmatism" value="merge" onchange="toggleAstigmatismInputs(); calculate();">
+      <input type="radio" id="merge" name="astigmatism" value="merge" onchange="toggleAstigmatismInputs(); calculate();" checked>
       <label for="merge">Merge</label>
       <input type="radio" id="separate" name="astigmatism" value="separate" onchange="toggleAstigmatismInputs(); calculate();">
       <label for="separate">Separate</label>
@@ -163,21 +163,12 @@
       var d = input_d.value.trim() !== '' ? parseFloat(input_d.value) : 12;
       var e = input_e.value.trim() !== '' ? parseFloat(input_e.value) : 0;
 
-      // 定义函数 f(x) 和 g(x)
-      function f(x, d) {
-        return x / (1 - d * x / 1000);
-      }
-  
-      function g(x, d) {
-        return x / (1 + d * x / 1000);
-      }
-
       // Calculated from selected numbers
       var result;
       if (selected === 'p') {
-        result = g((c - f(o, d) + f(s, d)), d).toFixed(2);
+        result = (c / (1 + (d / 1000) * c) + s - o).toFixed(2);
         input_p.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
-        result = g((cc - f(co, d) + f(cs, d)), d).toFixed(2);
+        result = (cc / (1 + (d / 1000) * cc) + cs - co).toFixed(2);
         input_cp.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         result = (p + cp / 2).toFixed(2);
         input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
@@ -185,35 +176,35 @@
         result = (p + cp / 2).toFixed(2);
         input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         if (document.getElementById('merge').checked) {
-          result = g((c - f(e, d) + f(s, d)), d).toFixed(2);
+          result = (c / (1 + (d / 1000) * c) + s - e).toFixed(2);
         } else {
-          result = g((c - f(p, d) + f(s, d)), d).toFixed(2);
+          result = (c / (1 + (d / 1000) * c) + s - p).toFixed(2);
           input_o.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
-          result = g((cc - f(cp, d) + f(cs, d)), d).toFixed(2);
+          result = (cc / (1 + (d / 1000) * cc) + cs - cp).toFixed(2);
           input_co.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         }
       } else if (selected === 'c') {
         result = (p + cp / 2).toFixed(2);
         input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         if (document.getElementById('merge').checked) {
-          result = (f(e, d) + f(o, d) - f(s, d)).toFixed(2);
+          result = ((e + o - s) / (1 - (d / 1000) * (e + o - s))).toFixed(2);
           input_c.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         } else {
-          result = (f(p, d) + f(o, d) - f(s, d)).toFixed(2);
+          result = ((p + o - s) / (1 - (d / 1000) * (p + o - s))).toFixed(2);
           input_c.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
-          result = (f(cp, d) + f(co, d) - f(cs, d)).toFixed(2);
+          result = ((cp + co - cs) / (1 - (d / 1000) * (cp + co - cs))).toFixed(2);
           input_cc.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         }
       } else if (selected === 's') {
         result = (p + cp / 2).toFixed(2);
         input_e.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         if (document.getElementById('merge').checked) {
-          result = g((f(e, d) + f(o, d) - c), d).toFixed(2);
+          result = (-c / (1 + (d / 1000) * c) + o + e).toFixed(2);
           input_s.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         } else {
-          result = g((f(p, d) + f(o, d) - c), d).toFixed(2);
+          result = (-c / (1 + (d / 1000) * c) + o + p).toFixed(2);
           input_s.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
-          result = g((f(cp, d) + f(co, d) - cc), d).toFixed(2);
+          result = (-cc / (1 + (d / 1000) * cc) + co + cp).toFixed(2);
           input_cs.value = parseFloat(result) >= 0 ? '+' + parseFloat(result) : parseFloat(result);
         }
       }
